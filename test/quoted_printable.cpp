@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(hello)
 
 BOOST_AUTO_TEST_CASE(hello_mixed)
 {
-    std::string x{"\xd0\xbf\xd1\x80\xd0\xb8w\xd0\xb5\xd1\x82"};
+    std::string x{"=d0=bf=d1=80=d0=b8w=d0=b5=d1=82"};
     std::string expected{"приwет"};
     const auto actual = decode(x);
 
