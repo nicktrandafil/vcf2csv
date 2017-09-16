@@ -2,6 +2,8 @@
 set(vcf2csv_core_src
   3rd_party/folly/ScopeGuard.cpp
   vcf.cpp
+  csv.cpp
+  quoted_printable.cpp
 )
 
 

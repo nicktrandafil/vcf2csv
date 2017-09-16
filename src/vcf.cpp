@@ -155,8 +155,8 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
             >> -(
                     lit(';')
                  >> (
-                         param(phx::ref("TYPE"))[at_c<0>(_val) = _1]
-                      | *param_value            [phx::bind(&append, at_c<0>(_val), _1)])
+                        param(phx::ref("TYPE"))[at_c<0>(_val) = _1]
+                     | *param_value            [phx::bind(&append, at_c<0>(_val), _1)])
                 )
             >> ':'
             >> text[at_c<1>(_val) = _1];
@@ -227,7 +227,7 @@ struct Vcf::Impl
         std::istreambuf_iterator<char> first,
         std::istreambuf_iterator<char> last)
             : it{spirit::make_default_multi_pass(first)}
-            , last{spirit::make_default_multi_pass(BaseIterator{})}
+            , last{spirit::make_default_multi_pass(last)}
             , error{false}
     {}
 

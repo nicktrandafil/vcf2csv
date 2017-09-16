@@ -17,7 +17,7 @@ option(BUILD_TESTS "Собирать тесты" OFF)
 
 # To reflect CMAKE_BUILD_TYPE changes into the GUI
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Тип сборки" FORCE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Тип сборки" FORCE)
 endif()
 
 
