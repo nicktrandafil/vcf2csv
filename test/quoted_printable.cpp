@@ -13,10 +13,7 @@ BOOST_AUTO_TEST_SUITE(quoted_printable)
 
 BOOST_AUTO_TEST_CASE(pure)
 {
-    std::string x{
-        "abc"
-    };
-
+    std::string x{"abc"};
     BOOST_CHECK_EQUAL("abc", decode(x));
 }
 
