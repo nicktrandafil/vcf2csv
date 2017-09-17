@@ -34,6 +34,7 @@ set(vcf2csv_src main.cpp)
 
 add_executable(vcf2csv ${vcf2csv_src})
 set_target_properties(vcf2csv PROPERTIES ${properties})
+target_link_libraries(vcf2csv PRIVATE vcf2csv_core stdc++fs)
 
 
 # Install

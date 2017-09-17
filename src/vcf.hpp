@@ -21,7 +21,7 @@ class Vcf;
 class VcfIterator
     : public boost::iterator_facade<
         VcfIterator,
-        VCard,
+        VCard const,
         boost::single_pass_traversal_tag
       >
 {
@@ -30,8 +30,8 @@ public:
     ~VcfIterator();
 
     explicit VcfIterator(Vcf& x);
-    explicit VcfIterator(const VcfIterator& rhs);
-    explicit VcfIterator(VcfIterator&& rhs);
+    VcfIterator(const VcfIterator& rhs);
+    VcfIterator(VcfIterator&& rhs);
 
 private:
     friend boost::iterator_core_access;

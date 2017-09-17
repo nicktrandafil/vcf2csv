@@ -328,4 +328,12 @@ VcfIterator::reference VcfIterator::dereference() const
 }
 
 
+bool VcfIterator::equal(const VcfIterator& rhs) const
+{
+    if (!impl ^ !rhs.impl) { return false; }
+    if (!impl)             { return true;  }
+    return &impl->vcf == &rhs.impl->vcf;
+}
+
+
 } // namespace vcf
