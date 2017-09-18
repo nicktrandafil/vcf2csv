@@ -1,5 +1,6 @@
 // local
 #include "vcf.hpp"
+#include "vcf_iterator.hpp"
 #include "csv.hpp"
 #include "quoted_printable.hpp"
 

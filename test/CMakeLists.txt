@@ -7,6 +7,7 @@ set(test_vcf2csv_core_src
   main.cpp
   test.cpp
   vcf.cpp
+  vcf_iterator.cpp
   quoted_printable.cpp
 )
 
@@ -31,4 +32,5 @@ target_link_libraries(test_vcf2csv_core
 
 add_test(vcf test_vcf2csv_core --run_test=vcf)
 add_test(test test_vcf2csv_core --run_test=test)
-add_test(quoted_printable --run_test=quoted_printable)
+add_test(quoted_printable test_vcf2csv_core --run_test=quoted_printable)
+add_test(vcf_iterator test_vcf2csv_core --run_test=vcf_iterator)

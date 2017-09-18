@@ -1,6 +1,8 @@
 #include "vcf.hpp"
+#include "vcf_iterator.hpp"
 
 // boost spirit
+#include <boost/assert.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_multi_pass.hpp>
@@ -282,25 +284,30 @@ bool Vcf::error() const
 
 struct VcfIterator::Impl
 {
-    explicit Impl(Vcf& x)
+    explicit Impl(Vcf* x)
         : vcf{x}
+        , end{true}
     {}
 
-    Vcf&  vcf;
+    Vcf*  vcf;
     VCard current;
+    bool end;
 };
 
 
-VcfIterator::VcfIterator() = default;
+VcfIterator::VcfIterator()
+    : impl{std::make_unique<Impl>(nullptr)}
+{}
 
 
 VcfIterator::~VcfIterator() = default;
 
 
 VcfIterator::VcfIterator(Vcf& x)
-    : impl{std::make_unique<Impl>(x)}
+    : impl{std::make_unique<Impl>(&x)}
 {
     x >> impl->current;
+    impl->end = impl->vcf->error();
 }
 
 
@@ -316,23 +323,26 @@ VcfIterator::VcfIterator(VcfIterator&& rhs)
 
 void VcfIterator::increment()
 {
-    if (!(impl && impl->vcf.good())) { return; }
-    impl->vcf >> impl->current;
+    impl->end = !(impl->vcf && impl->vcf->good());
+    if (impl->end) { return; }
+    *impl->vcf >> impl->current;
 }
 
 
 VcfIterator::reference VcfIterator::dereference() const
 {
-    assert(impl && impl->vcf.good());
+    BOOST_ASSERT(!impl->end);
     return impl->current;
 }
 
 
 bool VcfIterator::equal(const VcfIterator& rhs) const
 {
-    if (!impl ^ !rhs.impl) { return false; }
-    if (!impl)             { return true;  }
-    return &impl->vcf == &rhs.impl->vcf;
+    if (!(!impl->vcf ^ !rhs.impl->vcf) && impl->vcf) {
+        return impl->vcf == rhs.impl->vcf;
+    } else {
+        return impl->end == rhs.impl->end;
+    }
 }
 
 
