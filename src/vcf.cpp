@@ -196,7 +196,7 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
                      | unkonwn        [at_c<5>(_val) += _1]
                     )
                 )
-            >> "END:VCARD";
+            >> "END:VCARD" >> -eol;
     }
 
     qi::rule<Iterator, VCard(),                    ascii::blank_type> vcard;

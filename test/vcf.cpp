@@ -313,4 +313,55 @@ BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params)
 }
 
 
+BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params_multi)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "ADR;TYPE=cell,home;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;;;\n"
+        "END:VCARD\n"
+        "BEGIN:VCARD\n"
+        "ADR;TYPE=cell,home;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;;;\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    {
+        VCard x;
+        parser >> x;
+    
+        BOOST_CHECK(!parser.error());
+        BOOST_CHECK(!parser.eof());
+    
+        BOOST_CHECK(x.address->type);
+        BOOST_CHECK(x.address->charset);
+        BOOST_CHECK(x.address->encoding);
+    
+        BOOST_CHECK_EQUAL("cell,home", *x.address->type);
+    
+        BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
+        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+    }
+
+    {
+        VCard x;
+        parser >> x;
+    
+        BOOST_CHECK(!parser.error());
+        BOOST_CHECK(parser.eof());
+    
+        BOOST_CHECK(x.address->type);
+        BOOST_CHECK(x.address->charset);
+        BOOST_CHECK(x.address->encoding);
+    
+        BOOST_CHECK_EQUAL("cell,home", *x.address->type);
+    
+        BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
+        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+    }
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
