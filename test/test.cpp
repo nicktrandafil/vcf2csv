@@ -1,11 +1,8 @@
 // boost test
 #include <boost/test/unit_test.hpp>
 
-// boost spirit
-#include <boost/spirit/include/qi.hpp>
-
-
-namespace qi = boost::spirit::qi;
+// std
+#include <sstream>
 
 
 BOOST_AUTO_TEST_SUITE(test)
@@ -13,19 +10,13 @@ BOOST_AUTO_TEST_SUITE(test)
 
 BOOST_AUTO_TEST_CASE(end)
 {
-    std::string source{"x"};
-    std::string res;
+    std::string source{"5"};
+    std::istringstream ins{source};
 
-    auto it = source.begin();
-    const auto ok = qi::phrase_parse(
-        it,
-        source.end(),
-        -(*qi::char_ >> ':'),
-        qi::blank,
-        qi::skip_flag::dont_postskip,
-        res);
+    auto it = std::istream_iterator<int>(ins);
 
-    BOOST_CHECK(ok);
+    BOOST_CHECK(ins.eof());
+    BOOST_CHECK(it != std::istream_iterator<int>());
 }
 
 

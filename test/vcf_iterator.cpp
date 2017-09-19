@@ -109,4 +109,27 @@ BOOST_AUTO_TEST_CASE(complex)
 }
 
 
+BOOST_AUTO_TEST_CASE(check_change_state_initial_iterator)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "ADR:abc;;;;;;\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    BOOST_CHECK(!parser.error());
+    BOOST_CHECK(!parser.eof());
+
+    VcfIterator it{parser};
+
+    BOOST_CHECK(!parser.error());
+    BOOST_CHECK(parser.eof());
+    BOOST_CHECK(it != VcfIterator());
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
