@@ -270,11 +270,12 @@ void process(const fs::path& path)
 
 void processFilesInCurrentDir()
 {
-    const auto path = fs::current_path();
-    for (const auto &entry: fs::directory_iterator{path}) {
+    const auto current = fs::current_path();
+    for (const auto &entry: fs::directory_iterator{current}) {
         if (fs::is_directory(entry)) { continue; }
-        if (entry.path().extension() != ".vcf") { continue; }
-        process(entry.path());
+        const auto path = entry.path();
+        if (path.extension() != ".vcf") { continue; }
+        process(path.filename());
     }
 }
 
@@ -301,7 +302,11 @@ int main(int argc, char *argv[])
     // Second use case
     std::for_each(
         argv + 1, argv + argc,
-        [](auto x) { process(fs::path{x}); });
+        [](auto x) {
+            const fs::path path{x};
+            if (path.extension() != ".vcf") { return; }
+            process(path);
+        });
 
     return 0;
 }
