@@ -132,4 +132,31 @@ BOOST_AUTO_TEST_CASE(check_change_state_initial_iterator)
 }
 
 
+BOOST_AUTO_TEST_CASE(check_only_one_vcard_preload)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "ADR:abc;;;;;;\n"
+        "END:VCARD\n"
+        "BEGIN:VCARD\n"
+        "ADR:def;;;;;;\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    BOOST_CHECK(!parser.error());
+    BOOST_CHECK(!parser.eof());
+
+    VcfIterator it{parser};
+    std::string s;
+    std::getline(ins, s);
+    std::getline(ins, s);
+
+    BOOST_CHECK_EQUAL("ADR:def;;;;;;", s);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

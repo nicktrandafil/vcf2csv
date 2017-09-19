@@ -10,13 +10,16 @@ BOOST_AUTO_TEST_SUITE(test)
 
 BOOST_AUTO_TEST_CASE(end)
 {
-    std::string source{"5"};
+    std::string source{"xy"};
     std::istringstream ins{source};
 
-    auto it = std::istream_iterator<int>(ins);
+    auto it = std::istreambuf_iterator<char>(ins);
+    ++it;
 
-    BOOST_CHECK(ins.eof());
-    BOOST_CHECK(it != std::istream_iterator<int>());
+    char c;
+    ins >> c;
+
+    BOOST_CHECK(c == 'y');
 }
 
 
