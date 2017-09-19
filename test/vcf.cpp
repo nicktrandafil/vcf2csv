@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE(unkonwn_version_fn_tel)
     BOOST_CHECK(!x.formatted_name->encoding);
     BOOST_CHECK_EQUAL(x.formatted_name->value, "surname name");
 
-    BOOST_CHECK(!x.tel->type);
-    BOOST_CHECK_EQUAL(x.tel->value, "+12345");
+    BOOST_CHECK(!x.tel[0].type);
+    BOOST_CHECK_EQUAL(x.tel[0].value, "+12345");
 
     BOOST_CHECK_EQUAL(
         "bzz\n",
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE(version_n_fn_tel_2_1)
     BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.formatted_name->encoding);
     BOOST_CHECK_EQUAL("=54=C3su rn=B8ame name", x.formatted_name->value);
 
-    BOOST_CHECK_EQUAL("home,work", *x.tel->type);
-    BOOST_CHECK_EQUAL(x.tel->value, "+12345");
+    BOOST_CHECK_EQUAL("home,work", *x.tel[0].type);
+    BOOST_CHECK_EQUAL(x.tel[0].value, "+12345");
 }
 
 
@@ -148,8 +148,28 @@ BOOST_AUTO_TEST_CASE(version_n_fn_tel_3_0)
     VCard x;
     parser >> x;
 
-    BOOST_CHECK_EQUAL("CELL", *x.tel->type);
-    BOOST_CHECK_EQUAL(x.tel->value, "+12345");
+    BOOST_CHECK_EQUAL("CELL", *x.tel[0].type);
+    BOOST_CHECK_EQUAL(x.tel[0].value, "+12345");
+}
+
+
+BOOST_AUTO_TEST_CASE(tel_2_1_multiple)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "TEL;WORK;VOICE:(111) 555-1212\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    VCard x;
+    parser >> x;
+
+    BOOST_CHECK_EQUAL("WORK,VOICE", *x.tel[0].type);
+    BOOST_CHECK_EQUAL(x.tel[0].value, "(111) 555-1212");
 }
 
 
@@ -190,8 +210,8 @@ BOOST_AUTO_TEST_CASE(unknown_version_n_fn_tel_no_params)
     BOOST_CHECK(!x.formatted_name->encoding);
     BOOST_CHECK_EQUAL(x.formatted_name->value, "surname name");
 
-    BOOST_CHECK(!x.tel->type);
-    BOOST_CHECK_EQUAL(x.tel->value, "+12345");
+    BOOST_CHECK(!x.tel[0].type);
+    BOOST_CHECK_EQUAL(x.tel[0].value, "+12345");
 
     BOOST_CHECK_EQUAL(
         "bzz\n"
@@ -218,17 +238,20 @@ BOOST_AUTO_TEST_CASE(addr_no_params)
     BOOST_CHECK(!parser.error());
     BOOST_CHECK(parser.eof());
 
-    BOOST_CHECK(!x.address->type);
-    BOOST_CHECK(!x.address->charset);
-    BOOST_CHECK(!x.address->encoding);
+    BOOST_CHECK(x.address.size() == 1);
 
-    BOOST_CHECK_EQUAL("", x.address->postal_box);
-    BOOST_CHECK_EQUAL("", x.address->extended_address);
-    BOOST_CHECK_EQUAL("123 Main Street", x.address->street);
-    BOOST_CHECK_EQUAL("Any Town", x.address->town);
-    BOOST_CHECK_EQUAL("CA", x.address->region);
-    BOOST_CHECK_EQUAL("91921-1234", x.address->postal_code);
-    BOOST_CHECK_EQUAL("US", x.address->country);
+    const auto& address = x.address[0];
+    BOOST_CHECK(!address.type);
+    BOOST_CHECK(!address.charset);
+    BOOST_CHECK(!address.encoding);
+
+    BOOST_CHECK_EQUAL("", address.postal_box);
+    BOOST_CHECK_EQUAL("", address.extended_address);
+    BOOST_CHECK_EQUAL("123 Main Street", address.street);
+    BOOST_CHECK_EQUAL("Any Town", address.town);
+    BOOST_CHECK_EQUAL("CA", address.region);
+    BOOST_CHECK_EQUAL("91921-1234", address.postal_code);
+    BOOST_CHECK_EQUAL("US", address.country);
 }
 
 
@@ -250,11 +273,13 @@ BOOST_AUTO_TEST_CASE(addr_2_1_type_params)
     BOOST_CHECK(!parser.error());
     BOOST_CHECK(parser.eof());
 
-    BOOST_CHECK(x.address->type);
-    BOOST_CHECK(!x.address->charset);
-    BOOST_CHECK(!x.address->encoding);
+    BOOST_CHECK(x.address.size() == 1);
+    const auto& address = x.address[0];
+    BOOST_CHECK(address.type);
+    BOOST_CHECK(!address.charset);
+    BOOST_CHECK(!address.encoding);
 
-    BOOST_CHECK_EQUAL("CELL,HOME", *x.address->type);
+    BOOST_CHECK_EQUAL("CELL,HOME", *address.type);
 }
 
 
@@ -276,11 +301,13 @@ BOOST_AUTO_TEST_CASE(addr_3_0_type_params)
     BOOST_CHECK(!parser.error());
     BOOST_CHECK(parser.eof());
 
-    BOOST_CHECK(x.address->type);
-    BOOST_CHECK(!x.address->charset);
-    BOOST_CHECK(!x.address->encoding);
+    BOOST_CHECK(x.address.size() == 1);
+    const auto& address = x.address[0];
+    BOOST_CHECK(address.type);
+    BOOST_CHECK(!address.charset);
+    BOOST_CHECK(!address.encoding);
 
-    BOOST_CHECK_EQUAL("cell,home", *x.address->type);
+    BOOST_CHECK_EQUAL("cell,home", *address.type);
 }
 
 
@@ -302,25 +329,27 @@ BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params)
     BOOST_CHECK(!parser.error());
     BOOST_CHECK(parser.eof());
 
-    BOOST_CHECK(x.address->type);
-    BOOST_CHECK(x.address->charset);
-    BOOST_CHECK(x.address->encoding);
+    BOOST_CHECK(x.address.size() == 1);
+    const auto& address = x.address[0];
+    BOOST_CHECK(address.type);
+    BOOST_CHECK(address.charset);
+    BOOST_CHECK(address.encoding);
 
-    BOOST_CHECK_EQUAL("cell,home", *x.address->type);
+    BOOST_CHECK_EQUAL("cell,home", *address.type);
 
-    BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
-    BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+    BOOST_CHECK_EQUAL("UTF-8", *address.charset);
+    BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *address.encoding);
 }
 
 
-BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params_multi)
+BOOST_AUTO_TEST_CASE(v3_0_multi_entry)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"
-        "ADR;TYPE=cell,home;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;;;\n"
+        "ADR:;;;;;;\n"
         "END:VCARD\n"
         "BEGIN:VCARD\n"
-        "ADR;TYPE=cell,home;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:;;;;;;\n"
+        "ADR:abc;;;;;;\n"
         "END:VCARD"
     };
 
@@ -335,14 +364,8 @@ BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params_multi)
         BOOST_CHECK(!parser.error());
         BOOST_CHECK(!parser.eof());
     
-        BOOST_CHECK(x.address->type);
-        BOOST_CHECK(x.address->charset);
-        BOOST_CHECK(x.address->encoding);
-    
-        BOOST_CHECK_EQUAL("cell,home", *x.address->type);
-    
-        BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
-        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+        BOOST_CHECK(x.address.size() == 1);
+        BOOST_CHECK_EQUAL("", x.address[0].postal_box);
     }
 
     {
@@ -352,15 +375,34 @@ BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params_multi)
         BOOST_CHECK(!parser.error());
         BOOST_CHECK(parser.eof());
     
-        BOOST_CHECK(x.address->type);
-        BOOST_CHECK(x.address->charset);
-        BOOST_CHECK(x.address->encoding);
-    
-        BOOST_CHECK_EQUAL("cell,home", *x.address->type);
-    
-        BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
-        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+        BOOST_CHECK(x.address.size() == 1);
+        BOOST_CHECK_EQUAL("abc", x.address[0].postal_box);
     }
+}
+
+
+BOOST_AUTO_TEST_CASE(v3_0_multi_address)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "ADR:abc;;;;;;\n"
+        "ADR:def;;;;;;\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    VCard x;
+    parser >> x;
+
+    BOOST_CHECK(!parser.error());
+    BOOST_CHECK(parser.eof());
+ 
+    BOOST_CHECK(x.address.size() == 2);
+    BOOST_CHECK_EQUAL("abc", x.address[0].postal_box);
+    BOOST_CHECK_EQUAL("def", x.address[1].postal_box);
 }
 
 

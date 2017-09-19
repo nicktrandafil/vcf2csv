@@ -9,6 +9,7 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_fusion.hpp>
+#include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 
 // std
@@ -110,6 +111,7 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
         using qi::lexeme;
         using qi::string;
         using phx::at_c;
+        using phx::push_back;
 
         using namespace qi::labels;
 
@@ -154,11 +156,9 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
         // Tel attribute
         tel =
                "TEL"
-            >> -(
-                    lit(';')
-                 >> (
-                        param(phx::ref("TYPE"))[at_c<0>(_val) = _1]
-                     | *param_value            [phx::bind(&append, at_c<0>(_val), _1)])
+            >> *(
+                    (lit(';') >> param(phx::ref("TYPE"))[at_c<0>(_val) = _1])
+                 |  (lit(';') >> param_value            [phx::bind(&append, at_c<0>(_val), _1)])
                 )
             >> ':'
             >> text[at_c<1>(_val) = _1];
@@ -190,11 +190,11 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
             >> *(
                     !lit("END:VCARD")
                  >> (
-                       version        [at_c<0>(_val) =  _1] >> eol
-                     | name           [at_c<1>(_val) =  _1] >> eol
-                     | formatted_name [at_c<2>(_val) =  _1] >> eol
-                     | tel            [at_c<3>(_val) =  _1] >> eol
-                     | addr           [at_c<4>(_val) =  _1] >> eol
+                       version        [at_c<0>(_val) =  _1]          >> eol
+                     | name           [at_c<1>(_val) =  _1]          >> eol
+                     | formatted_name [at_c<2>(_val) =  _1]          >> eol
+                     | tel            [push_back(at_c<3>(_val), _1)] >> eol
+                     | addr           [push_back(at_c<4>(_val), _1)] >> eol
                      | unkonwn        [at_c<5>(_val) += _1]
                     )
                 )

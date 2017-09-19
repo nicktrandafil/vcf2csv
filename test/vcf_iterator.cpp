@@ -75,33 +75,33 @@ BOOST_AUTO_TEST_CASE(complex)
         BOOST_CHECK(!parser.error());
         BOOST_CHECK(!parser.eof());
     
-        BOOST_CHECK(x.address->type);
-        BOOST_CHECK(x.address->charset);
-        BOOST_CHECK(x.address->encoding);
+        BOOST_CHECK(x.address[0].type);
+        BOOST_CHECK(x.address[0].charset);
+        BOOST_CHECK(x.address[0].encoding);
     
-        BOOST_CHECK_EQUAL("cell,home", *x.address->type);
+        BOOST_CHECK_EQUAL("cell,home", *x.address[0].type);
     
-        BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
-        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+        BOOST_CHECK_EQUAL("UTF-8", *x.address[0].charset);
+        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address[0].encoding);
     }
 
     ++it;
     BOOST_CHECK(it != end);
 
-    {
+{
         VCard x = *it;
     
         BOOST_CHECK(!parser.error());
         BOOST_CHECK(parser.eof());
     
-        BOOST_CHECK(x.address->type);
-        BOOST_CHECK(x.address->charset);
-        BOOST_CHECK(x.address->encoding);
+        BOOST_CHECK(x.address[0].type);
+        BOOST_CHECK(x.address[0].charset);
+        BOOST_CHECK(x.address[0].encoding);
     
-        BOOST_CHECK_EQUAL("cell,home", *x.address->type);
+        BOOST_CHECK_EQUAL("cell,home", *x.address[0].type);
     
-        BOOST_CHECK_EQUAL("UTF-8", *x.address->charset);
-        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address->encoding);
+        BOOST_CHECK_EQUAL("UTF-8", *x.address[0].charset);
+        BOOST_CHECK_EQUAL("QUOTED-PRINTABLE", *x.address[0].encoding);
     }
 
     ++it;

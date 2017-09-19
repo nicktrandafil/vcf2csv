@@ -12,6 +12,8 @@
 // boost
 #include <boost/format.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
@@ -169,47 +171,43 @@ std::vector<std::string> toCsv(const std::optional<vcf::attribute::Name>& x)
 }
 
 
-std::vector<std::string> toCsv(const std::optional<vcf::attribute::Tel>& x)
+std::vector<std::string> toCsv(const std::vector<vcf::attribute::Tel>& telephones)
 {
     std::vector<std::string> row(2);
-    if (!x) { return row; }
 
-    row[0] = x->type.value_or("");
-    row[1] = x->value;
+    using namespace boost::adaptors;
+    const int last = telephones.size() - 1;
+    for (const auto& x: telephones | indexed(0)) {
+        const auto eol = x.index() == last ? "" : "\n";
+        row[0] += x.value().type.value_or("") + eol;
+        row[1] += x.value().value             + eol;
+    }
 
     return row;
 }
 
 
-std::vector<std::string> toCsv(const std::optional<vcf::attribute::Addr>& x)
+std::vector<std::string> toCsv(const std::vector<vcf::attribute::Addr>& addresses)
 {
     std::vector<std::string> row(8);
-    if (!x) { return row; }
 
-    const auto decode = makeDecoder(x->encoding, x->charset);
-    row[0] = x->type.value_or("");
-    row[1] = decode(x->postal_box);
-    row[2] = decode(x->extended_address);
-    row[3] = decode(x->street);
-    row[4] = decode(x->town);
-    row[5] = decode(x->region);
-    row[6] = decode(x->postal_code);
-    row[7] = decode(x->country);
+    using namespace boost::adaptors;
+    const int last = addresses.size() - 1;
+    for (const auto& node : addresses | indexed(0)) {
+        const auto eol = node.index() == last ? "" : "\n";
+        const auto x = node.value();
+        const auto decode = makeDecoder(x.encoding, x.charset);
+        row[0] += x.type.value_or("")        + eol;
+        row[1] += decode(x.postal_box)       + eol;
+        row[2] += decode(x.extended_address) + eol;
+        row[3] += decode(x.street)           + eol;
+        row[4] += decode(x.town)             + eol;
+        row[5] += decode(x.region)           + eol;
+        row[6] += decode(x.postal_code)      + eol;
+        row[7] += decode(x.country)          + eol;
+    }
 
     return row;
-}
-
-
-std::string eraseEol(const std::string &x)
-{
-    std::string ret = x;
-    ret.erase(
-        std::remove_if(
-            ret.begin(), ret.end(),
-            [](char c) { return vcf::meta::any(c, '\n', '\r'); }),
-        ret.end());
-
-    return x;
 }
 
 
@@ -221,7 +219,7 @@ std::string toCsv(const vcf::VCard& x)
     boost::copy(toCsv(x.name), std::back_inserter(row));
     boost::copy(toCsv(x.tel), std::back_inserter(row));
     boost::copy(toCsv(x.address), std::back_inserter(row));
-    row.push_back(eraseEol(x.unkonwn));
+    row.push_back(boost::trim_copy(x.unkonwn));
     return vcf::csv::serialize(row);
 }
 
@@ -240,7 +238,8 @@ void process(const fs::path& path)
         return;
     }
 
-    const auto out_path = path.parent_path() / path.filename() / ".csv";
+    auto out_path = path;
+    out_path.replace_extension(".csv");
     std::ofstream outf{out_path};
     if (!outf) {
         info = (wformat(L"ошибка: не могу открыть файл %1% для записи")
@@ -256,6 +255,8 @@ void process(const fs::path& path)
     const auto vcards = 
         boost::make_iterator_range(
             vcf::VcfIterator{parser}, vcf::VcfIterator{});
+
+    outf << vcardHeaders() << '\n';
 
     using namespace boost::adaptors;
     boost::for_each(

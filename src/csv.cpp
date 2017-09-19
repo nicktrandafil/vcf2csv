@@ -72,7 +72,7 @@ std::string serializeCell(const std::string &cell) {
 
   const auto escape = std::any_of(
     tmp.begin(), tmp.end(),
-    [](char c) { return meta::any(c, delim, bound); });
+    [](char c) { return meta::any(c, delim, bound, '\n', '\r'); });
 
   return escape ? bound + tmp + bound : tmp;
 }

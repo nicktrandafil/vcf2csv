@@ -2,7 +2,6 @@
 
 
 // std
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -68,8 +67,8 @@ struct VCard
     std::optional<attribute::Version>       version;
     std::optional<attribute::Name>          name;
     std::optional<attribute::FormattedName> formatted_name;
-    std::optional<attribute::Tel>           tel;
-    std::optional<attribute::Addr>          address;
+    std::vector<attribute::Tel>             tel;
+    std::vector<attribute::Addr>            address;
     std::string                             unkonwn;
 };
 
