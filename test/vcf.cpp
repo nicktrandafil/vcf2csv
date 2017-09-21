@@ -406,4 +406,27 @@ BOOST_AUTO_TEST_CASE(v3_0_multi_address)
 }
 
 
+BOOST_AUTO_TEST_CASE(line_carry)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "FN;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:=d0=bf=d1=80=d0=b8w=\n"
+        "=d0=b5=d1=82\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    VCard x;
+    parser >> x;
+
+    BOOST_CHECK(!parser.error());
+    BOOST_CHECK(parser.eof());
+
+    BOOST_CHECK_EQUAL("=d0=bf=d1=80=d0=b8w=d0=b5=d1=82", x.formatted_name->value);
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()
