@@ -277,6 +277,8 @@ void processFilesInCurrentDir()
         if (path.extension() != ".vcf") { continue; }
         process(path.filename());
     }
+    out(L"Нажмите \"Ввод\" для завершения\n");
+    std::getchar();
 }
 
 

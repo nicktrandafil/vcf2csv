@@ -132,6 +132,28 @@ BOOST_AUTO_TEST_CASE(check_change_state_initial_iterator)
 }
 
 
+BOOST_AUTO_TEST_CASE(check_discard_state)
+{
+    std::istringstream ins{
+        "BEGIN:VCARD\n"
+        "ADR:abc;;;;;;\n"
+        "END:VCARD\n"
+        "BEGIN:VCARD\n"
+        "ADR:def;;;;;;\n"
+        "END:VCARD"
+    };
+
+    Vcf parser(
+        std::istreambuf_iterator<char>{ins},
+        std::istreambuf_iterator<char>{});
+
+    VcfIterator it{parser};
+    ++it;
+
+    BOOST_CHECK_EQUAL(1, it->address.size());
+}
+
+
 BOOST_AUTO_TEST_CASE(check_only_one_vcard_preload)
 {
     std::istringstream ins{

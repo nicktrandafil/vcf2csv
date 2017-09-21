@@ -325,6 +325,7 @@ void VcfIterator::increment()
 {
     impl->end = !(impl->vcf && impl->vcf->good());
     if (impl->end) { return; }
+    impl->current = {};
     *impl->vcf >> impl->current;
 }
 
