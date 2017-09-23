@@ -3,6 +3,7 @@
 
 // boost spirit
 #include <boost/assert.hpp>
+#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/support_multi_pass.hpp>
@@ -85,7 +86,7 @@ namespace vcf {
 namespace {
 
 
-void append(std::optional<std::string> &x, std::string value)
+void append(std::optional<std::string>& x, std::string value)
 {
     if (!x) {
         x = std::move(value);
@@ -94,6 +95,11 @@ void append(std::optional<std::string> &x, std::string value)
     }
 };
 
+
+bool isEp(std::string const& x)
+{
+    return boost::to_lower_copy(x) == "quoted-printable";
+}
 
 
 template <typename Iterator>
@@ -110,10 +116,14 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
         using qi::lit;
         using qi::lexeme;
         using qi::string;
+        using qi::eps;
         using phx::at_c;
         using phx::push_back;
 
         using namespace qi::labels;
+
+        // Soft break
+        soft_break = '=' >> eol;
 
         // Controls
         control %= char_(',') | char_(';') | char_('\\') | char_('\n');
@@ -122,7 +132,7 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
         escaped_control %= '\\' >> control;
 
         // Text
-        text %= lexeme[*((print - control) | escaped_control)];
+        text %= lexeme[*((eps(_r1) >> soft_break) | (print - control) | escaped_control)];
 
         // Param value
         param_value %= +(print - ';' - ':');
@@ -137,21 +147,21 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
         name %=
                'N'
             >> -(lit(';') >> param(phx::ref("CHARSET")))
-            >> -(lit(';') >> param(phx::ref("ENCODING")))
+            >> -(lit(';') >> param(phx::ref("ENCODING"))[_a = phx::bind(&isEp, _1)])
             >> ':'
-            >> text            // surname
-            >> -(';' >> text)  // name
-            >> -(';' >> text)  // patronymic
-            >> -(';' >> text)  // prefix
-            >> -(';' >> text); // sufix
+            >> text(_a)            // surname
+            >> -(';' >> text(_a))  // name
+            >> -(';' >> text(_a))  // patronymic
+            >> -(';' >> text(_a))  // prefix
+            >> -(';' >> text(_a)); // sufix
 
         // Formatted name attribute
         formatted_name %=
                "FN"
             >> -(lit(';') >> param(phx::ref("CHARSET")))
-            >> -(lit(';') >> param(phx::ref("ENCODING")))
+            >> -(lit(';') >> param(phx::ref("ENCODING"))[_a = phx::bind(&isEp, _1)])
             >> ':'
-            >> text;
+            >> text(_a);
 
         // Tel attribute
         tel =
@@ -161,7 +171,7 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
                  |  (lit(';') >> param_value            [phx::bind(&append, at_c<0>(_val), _1)])
                 )
             >> ':'
-            >> text[at_c<1>(_val) = _1];
+            >> text(phx::val(false))[at_c<1>(_val) = _1];
 
 
         // Address attribute
@@ -170,16 +180,16 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
             >> *(
                    (lit(';') >> param(phx::ref("TYPE")))    [at_c<0>(_val) = _1]
                  | (lit(';') >> param(phx::ref("CHARSET"))) [at_c<1>(_val) = _1]
-                 | (lit(';') >> param(phx::ref("ENCODING")))[at_c<2>(_val) = _1]
+                 | (lit(';') >> param(phx::ref("ENCODING")))[at_c<2>(_val) = _1, _a = _a = phx::bind(&isEp, _1)]
                  | (lit(';') >> param_value)                [phx::bind(&append, at_c<0>(_val), _1)]
                 )
-            >> ':' >> text[at_c<3>(_val) = _1]     // postal box
-            >> ';' >> text[at_c<4>(_val) = _1]     // extended_address
-            >> ';' >> text[at_c<5>(_val) = _1]     // street
-            >> ';' >> text[at_c<6>(_val) = _1]     // town
-            >> ';' >> text[at_c<7>(_val) = _1]     // region
-            >> ';' >> text[at_c<8>(_val) = _1]     // postal_code
-            >> ';' >> text[at_c<9>(_val) = _1];    // country
+            >> ':' >> text(_a)[at_c<3>(_val) = _1]     // postal box
+            >> ';' >> text(_a)[at_c<4>(_val) = _1]     // extended_address
+            >> ';' >> text(_a)[at_c<5>(_val) = _1]     // street
+            >> ';' >> text(_a)[at_c<6>(_val) = _1]     // town
+            >> ';' >> text(_a)[at_c<7>(_val) = _1]     // region
+            >> ';' >> text(_a)[at_c<8>(_val) = _1]     // postal_code
+            >> ';' >> text(_a)[at_c<9>(_val) = _1];    // country
 
         // Unkonwn attributes
         unkonwn %= *(!eol >> char_) >> (char_('\n') | string("\r\n"));
@@ -201,19 +211,20 @@ struct Grammer : qi::grammar<Iterator, VCard(), ascii::blank_type>
             >> "END:VCARD" >> -eol;
     }
 
-    qi::rule<Iterator, VCard(),                    ascii::blank_type> vcard;
-    qi::rule<Iterator, attribute::Version(),       ascii::blank_type> version;
-    qi::rule<Iterator, attribute::Name(),          ascii::blank_type> name;
-    qi::rule<Iterator, attribute::FormattedName(), ascii::blank_type> formatted_name;
-    qi::rule<Iterator, attribute::Tel(),           ascii::blank_type> tel;
-    qi::rule<Iterator, attribute::Addr(),          ascii::blank_type> addr;
-    qi::rule<Iterator, std::string()                                > unkonwn;
+    qi::rule<Iterator, VCard(),                                      ascii::blank_type> vcard;
+    qi::rule<Iterator, attribute::Version(),                         ascii::blank_type> version;
+    qi::rule<Iterator, attribute::Name(),          qi::locals<bool>, ascii::blank_type> name;
+    qi::rule<Iterator, attribute::FormattedName(), qi::locals<bool>, ascii::blank_type> formatted_name;
+    qi::rule<Iterator, attribute::Tel(),                             ascii::blank_type> tel;
+    qi::rule<Iterator, attribute::Addr(),          qi::locals<bool>, ascii::blank_type> addr;
+    qi::rule<Iterator, std::string()                                                  > unkonwn;
 
-    qi::rule<Iterator, std::string()                                > text;
-    qi::rule<Iterator, char()                                       > control;
-    qi::rule<Iterator, char()                                       > escaped_control;
-    qi::rule<Iterator, std::string(std::string),   ascii::blank_type> param;
-    qi::rule<Iterator, std::string(),              ascii::blank_type> param_value;
+    qi::rule<Iterator, std::string(bool)                                              > text;
+    qi::rule<Iterator, char()                                                         > control;
+    qi::rule<Iterator, char()                                                         > escaped_control;
+    qi::rule<Iterator, std::string(std::string),                     ascii::blank_type> param;
+    qi::rule<Iterator, std::string(),                                ascii::blank_type> param_value;
+    qi::rule<Iterator, void()                                                         > soft_break;
 };
 
 

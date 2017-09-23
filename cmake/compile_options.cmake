@@ -14,8 +14,10 @@ if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
   )
 endif()
 
+
 # Properties
 set(properties CXX_STANDARD 17)
+
 
 # Debug config shortcut
 if(CMAKE_BUILD_TYPE MATCHES "Debug")

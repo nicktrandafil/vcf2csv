@@ -17,9 +17,22 @@ std::string decode(const std::string& x)
         begin = i + 1;
         end = i + 2;
 
+        if (begin >= size) { break; }
+
+        if ('\n' == x[begin]) {
+            i = begin;
+            continue;
+        }
+
         if (end >= size) { break; }
 
         const std::string hex{x[begin], x[end]};
+
+        if ("\r\n" == hex) {
+            i = end;
+            continue;
+        }
+
         try {
             const char c = std::stoi(hex, nullptr, 16);
             decoded += c;

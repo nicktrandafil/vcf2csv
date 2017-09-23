@@ -179,8 +179,9 @@ std::vector<std::string> toCsv(const std::vector<vcf::attribute::Tel>& telephone
     const int last = telephones.size() - 1;
     for (const auto& x: telephones | indexed(0)) {
         const auto eol = x.index() == last ? "" : "\n";
+        const auto tmp = boost::format("=\"%1%\"") % x.value().value;
         row[0] += x.value().type.value_or("") + eol;
-        row[1] += x.value().value             + eol;
+        row[1] += tmp.str()                   + eol;
     }
 
     return row;
