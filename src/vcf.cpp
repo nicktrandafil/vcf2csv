@@ -86,7 +86,7 @@ namespace vcf {
 namespace {
 
 
-void append(std::optional<std::string>& x, std::string value)
+void append(boost::optional<std::string>& x, std::string value)
 {
     if (!x) {
         x = std::move(value);

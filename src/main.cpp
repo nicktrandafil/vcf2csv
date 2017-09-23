@@ -11,19 +11,24 @@
 
 // boost
 #include <boost/format.hpp>
+
 #include <boost/range/algorithm/copy.hpp>
-#include <boost/algorithm/string/trim.hpp>
+
 #include <boost/range/adaptor/indexed.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
+
+#include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/operations.hpp>
 
 // std
 #include <algorithm>
 #include <codecvt>
 #include <cstring>
 #include <fstream>
-#include <experimental/filesystem>
 #include <iostream>
 
 // win
@@ -32,7 +37,7 @@
 #endif
 
 
-namespace fs = std::experimental::filesystem;
+namespace fs = boost::filesystem;
 
 
 using boost::wformat;
@@ -119,8 +124,8 @@ using Decoder = std::function<std::string(std::string)>;
 
 
 Decoder makeDecoder(
-    const std::optional<std::string>& outer_coding,
-    const std::optional<std::string>& inner_coding)
+    const boost::optional<std::string>& outer_coding,
+    const boost::optional<std::string>& inner_coding)
 {
     const auto ic = boost::to_lower_copy(inner_coding.value_or("utf-8"));
     if (ic != "utf-8") {
@@ -141,13 +146,13 @@ Decoder makeDecoder(
 }
 
 
-std::string toCsv(const std::optional<vcf::attribute::Version>& x)
+std::string toCsv(const boost::optional<vcf::attribute::Version>& x)
 {
     return x ? x->value : "";
 }
 
 
-std::string toCsv(const std::optional<vcf::attribute::FormattedName>& x)
+std::string toCsv(const boost::optional<vcf::attribute::FormattedName>& x)
 {
     if (!x) { return {}; }
     const auto decode = makeDecoder(x->encoding, x->charset);
@@ -155,7 +160,7 @@ std::string toCsv(const std::optional<vcf::attribute::FormattedName>& x)
 }
 
 
-std::vector<std::string> toCsv(const std::optional<vcf::attribute::Name>& x)
+std::vector<std::string> toCsv(const boost::optional<vcf::attribute::Name>& x)
 {
     std::vector<std::string> row(5);
     if (!x) { return row; }
@@ -231,7 +236,7 @@ void process(const fs::path& path)
     std::wstring info{L"успешно"};
     SCOPE_EXIT { out(info + L"\n"); };
 
-    std::ifstream inf{path};
+    std::ifstream inf{path.string<std::string>()};
     if (!inf) {
         info = (wformat(L"ошибка: не могу открыть файл %1% для чтения")
             % path.wstring())
@@ -241,7 +246,7 @@ void process(const fs::path& path)
 
     auto out_path = path;
     out_path.replace_extension(".csv");
-    std::ofstream outf{out_path};
+    std::ofstream outf{out_path.string<std::string>()};
     if (!outf) {
         info = (wformat(L"ошибка: не могу открыть файл %1% для записи")
             % out_path.wstring())

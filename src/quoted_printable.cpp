@@ -1,7 +1,8 @@
 #include "quoted_printable.hpp"
 
 
-namespace vcf::quoted_printable {
+namespace vcf {
+namespace quoted_printable {
 
 
 std::string decode(const std::string& x)
@@ -45,4 +46,5 @@ std::string decode(const std::string& x)
 }
 
 
-} // namespace vcf::quoted_printable
+} // namespace quoted_printable
+} // namespace vcf

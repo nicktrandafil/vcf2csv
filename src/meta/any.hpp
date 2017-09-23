@@ -1,14 +1,22 @@
 #pragma once
 
 
-namespace vcf::meta {
+// std
+#include <initializer_list>
+
+
+namespace vcf {
+namespace meta {
 
 
 template <typename T, typename ...Args>
 constexpr bool any(T&& t, Args&&... args)
 {
-    return ((t == args) || ...);
+    bool match{false};
+    (void)std::initializer_list<bool>{(match = match || t == args)...};
+    return match;
 }
 
 
-} // namespace vcf:meta
+} // namepace meta
+} // namespace vcf

@@ -16,7 +16,7 @@ endif()
 
 
 # Properties
-set(properties CXX_STANDARD 17)
+set(properties CXX_STANDARD 14)
 
 
 # Debug config shortcut

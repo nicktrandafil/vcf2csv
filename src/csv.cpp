@@ -16,7 +16,8 @@
 #include <sstream>
 
 
-namespace vcf::csv {
+namespace vcf {
+namespace csv {
 namespace {
 
 
@@ -87,4 +88,5 @@ std::string serialize(const std::vector<std::string> &row) {
 }
 
 
-} // namespace vcf::csv
+} // namespace csv
+} // namespace vcf

@@ -15,7 +15,11 @@ set(test_vcf2csv_core_src
 add_executable(test_vcf2csv_core ${test_vcf2csv_core_src})
 target_compile_options(test_vcf2csv_core PRIVATE ${compile_options})
 set_target_properties(test_vcf2csv_core PROPERTIES ${properties})
-target_compile_definitions(test_vcf2csv_core PRIVATE "BOOST_TEST_DYN_LINK")
+
+if(NOT MINGW)
+  target_compile_definitions(test_vcf2csv_core PRIVATE "BOOST_TEST_DYN_LINK")
+endif()
+
 
 target_include_directories(test_vcf2csv_core
   PRIVATE
@@ -26,7 +30,7 @@ target_include_directories(test_vcf2csv_core
 
 target_link_libraries(test_vcf2csv_core
   vcf2csv_core
-  boost_unit_test_framework
+  ${Boost_LIBRARIES}
 )
 
 

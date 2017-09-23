@@ -28,7 +28,7 @@ include(compile_options)
 # Dependencies
 #
 
-find_package(Boost QUIET REQUIRED)
+find_package(Boost COMPONENTS system filesystem QUIET REQUIRED)
 
 if(BUILD_TESTS)
   find_package(Boost COMPONENTS unit_test_framework QUIET REQUIRED)

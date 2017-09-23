@@ -5,7 +5,8 @@
 #include <vector>
 
 
-namespace vcf::csv {
+namespace vcf {
+namespace csv {
 
 
 std::vector<std::string> parse(const std::string &row);
@@ -14,4 +15,5 @@ std::vector<std::string> parse(const std::string &row);
 std::string serialize(const std::vector<std::string> &row);
 
 
-} // namespace vcf::csv
+} // namespace csv
+} // namespace vcf
