@@ -22,7 +22,6 @@
 #include <type_traits>
 #include <utility>
 
-#include <folly/Portability.h>
 #include <folly/Preprocessor.h>
 #include <folly/detail/UncaughtExceptionCounter.h>
 
@@ -77,7 +76,7 @@ class ScopeGuardImplBase {
   }
 
   template <typename T>
-  FOLLY_ALWAYS_INLINE static void runAndWarnAboutToCrashOnException(
+  static void runAndWarnAboutToCrashOnException(
       T& function) noexcept {
     try {
       function();

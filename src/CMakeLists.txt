@@ -14,7 +14,6 @@ set(vcf2csv_core_src
 add_library(vcf2csv_core ${vcf2csv_core_src})
 target_compile_options(vcf2csv_core PUBLIC ${compile_options})
 set_target_properties(vcf2csv_core PROPERTIES ${properties})
-target_compile_definitions(vcf2csv_core PUBLIC "FOLLY_NO_CONFIG")
 
 target_include_directories(vcf2csv_core
   PUBLIC
