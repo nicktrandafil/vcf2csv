@@ -1,8 +1,8 @@
 // local
-#include "vcf.hpp"
-#include "vcf_iterator.hpp"
 #include "csv.hpp"
 #include "quoted_printable.hpp"
+#include "vcf.hpp"
+#include "vcf_iterator.hpp"
 
 #include "meta/any.hpp"
 
@@ -12,24 +12,23 @@
 // boost
 #include <boost/format.hpp>
 
-#include <boost/range/algorithm/copy.hpp>
-
-#include <boost/range/adaptor/indexed.hpp>
-#include <boost/range/adaptor/transformed.hpp>
-#include <boost/range/algorithm/for_each.hpp>
-
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include <boost/range/adaptor/indexed.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/algorithm/copy.hpp>
+#include <boost/range/algorithm/for_each.hpp>
+
 // std
 #include <algorithm>
 #include <codecvt>
 #include <cstring>
-#include <fstream>
 #include <iostream>
+#include <fstream>
 
 // win
 #ifdef WIN32

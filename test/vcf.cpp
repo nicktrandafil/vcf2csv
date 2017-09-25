@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(unkonwn_version_fn_tel)
 }
 
 
-BOOST_AUTO_TEST_CASE(version_n_fn_tel_2_1)
+BOOST_AUTO_TEST_CASE(v2_1_version_n_fn_tel)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(version_n_fn_tel_2_1)
 }
 
 
-BOOST_AUTO_TEST_CASE(version_n_fn_tel_3_0)
+BOOST_AUTO_TEST_CASE(v3_0_version_n_fn_tel)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(version_n_fn_tel_3_0)
 }
 
 
-BOOST_AUTO_TEST_CASE(tel_2_1_multiple)
+BOOST_AUTO_TEST_CASE(v_2_1_tel_multiple_times)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(addr_no_params)
 }
 
 
-BOOST_AUTO_TEST_CASE(addr_2_1_type_params)
+BOOST_AUTO_TEST_CASE(v2_1_addr_type_params)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(addr_2_1_type_params)
 }
 
 
-BOOST_AUTO_TEST_CASE(addr_3_0_type_params)
+BOOST_AUTO_TEST_CASE(v3_0_addr_type_params)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(addr_3_0_type_params)
 }
 
 
-BOOST_AUTO_TEST_CASE(addr_3_0_charset_encoding_params)
+BOOST_AUTO_TEST_CASE(v3_0_addr_charset_encoding_params)
 {
     std::istringstream ins{
         "BEGIN:VCARD\n"

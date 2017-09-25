@@ -12,12 +12,12 @@ project("vcf2csv" VERSION 0.0.1)
 # Options
 #
 
-option(BUILD_TESTS "Собирать тесты" OFF)
+option(BUILD_TESTS "Build tests" OFF)
 
 
 # To reflect CMAKE_BUILD_TYPE changes into the GUI
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Тип сборки" FORCE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
 

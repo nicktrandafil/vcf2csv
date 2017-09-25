@@ -13,9 +13,6 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/phoenix/bind/bind_function.hpp>
 
-// std
-#include <cassert>
-
 
 namespace ascii  = boost::spirit::ascii;
 namespace spirit = boost::spirit;
